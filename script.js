@@ -4,7 +4,7 @@ const dataController = (function() {
     return {
 
         fetchAddress : async function(address) {
-            const fetchResults = await fetch(`https://search.onboard-apis.com/propertyapi/v1.0.0/sale/snapshot?address=${address}&address2=${address}&radius=1&page=1&pagesize=1000`, {
+            const fetchResults = await fetch(`https://search.onboard-apis.com/propertyapi/v1.0.0/sale/snapshot?address=${address}&address2=${address}&radius=5&page=1&pagesize=1000`, {
                 method: "GET",
                 headers: {
                     Accept: "application/json",
@@ -46,7 +46,7 @@ const dataController = (function() {
                 if (type === "all"){
                     return item.sale.amount.saleamt > parseInt(price) && item.building.rooms.beds > parseInt(beds);
                 } else {
-                    return item.sale.amount.saleamt > parseInt(price) && item.building.rooms.beds > parseInt(beds) && item.summary.proptype === type ? item.sale.amount.saleamt > parseInt(price) && item.building.rooms.beds > parseInt(beds) && item.summary.proptype === type : console.log("There are no results for that search");
+                    return item.sale.amount.saleamt > parseInt(price) && item.building.rooms.beds > parseInt(beds) && item.summary.proptype === type;
                 }
             })
         },
@@ -65,15 +65,21 @@ const UIController = (function() {
          listingPopup : document.querySelector("#listing-popup-container"),
          listingPopupWindow : document.querySelector(".listing-popup"),
          listingInfo : document.querySelector(".listing-info"),
+         listingsContainer : document.querySelector("#listings-container"),
          listings : document.querySelector(".listings"),
+         listingsItemContainer : document.querySelector(".listing-item-container"),
          listingItem : document.querySelector(".listing-item"),
+         listingButtons : document.querySelector(".buttons"),
          closeListing : document.querySelector(".close"),
          listingSearch : document.querySelector(".secondary-nav input"),
          listingSearchForm : document.querySelector(".secondary-nav form"),
-         priceSelect : document.querySelector("#price"),
-         bedSelect : document.querySelector("#beds"),
-         typeSelect : document.querySelector("#type"),
-         filterSelects : document.querySelectorAll("select"),
+         priceButton : document.querySelector(".price-button"),
+         bedButton : document.querySelector(".beds-button"),
+         typeButton : document.querySelector(".type-button"),
+         filterButtons : document.querySelectorAll(".filter"),
+         listingsLoader : document.querySelector("#listloader"),
+         mapLoader : document.querySelector("#map-container .map-overlay"),
+         
     }
 
     let map;
@@ -92,11 +98,11 @@ const UIController = (function() {
     
         let infowindow = new google.maps.InfoWindow({
             content: `
-            <p>${property.address.line1}</p>
-            <p>${property.address.line2}</p>
-            <p>$${property.sale.amount.saleamt}</p>
+            <p class="infoW">${property.address.line1}</p>
+            <p class="infoW">${property.address.line2}</p>
+            <p class="infoW">$${property.sale.amount.saleamt}</p>
             <span>${property.building.rooms.beds} BEDROOM ${
-                property.summary.propsubtype
+                property.summary.proptype.replace("SFR", "HOUSE").replace("CONDOMINIUM", "CONDO")
             }</span>
             `
         });
@@ -104,8 +110,10 @@ const UIController = (function() {
         marker.addListener("mouseover", function() {
             infowindow.open(map, marker);
         });
+
         marker.addListener("mouseout", function() {
-            infowindow.close(map, marker);
+            infowindow.close(map, marker)
+            
         });
     
         marker.addListener("click", async function() {
@@ -117,19 +125,19 @@ const UIController = (function() {
                     Accept: "application/json",
                     apikey: "42c65bf54edfdc92b5825477c56a8b21"
                 }
-            }).then(blob => blob.json()).then(data => DomSelectors.listingInfo.innerHTML = popupHTML(data.property[0]));
-        });
+            }).then(blob => blob.json()).then(data => DomSelectors.listingInfo.innerHTML = popupHTML(null, data.property[0]));
+        }); 
         markersArr.push([marker, infowindow]);
     }
 
-    const popupHTML = property => {
+    const popupHTML = (e, property) => {
         return `<figure>
-            <img src="img/house${Math.floor(Math.random() * 10) + 1}.jpg" alt="Listing">
+            <img src="img/house${e !== null ? e.target.parentNode.dataset.image : Math.floor((Math.random() * 10) + 1)}.jpg" alt="Listing">
         </figure>
-        <i class="fas fa-map-marker-alt"></i>
-        <h2>${property.address.line1}</h2>
+        
+        <h2><i class="fas fa-map-marker-alt"></i>${property.address.line1}</h2>
         <h3>${property.address.line2}</h3>
-        <i class="fas fa-dollar-sign"></i><h3>Price: $${property.sale.amount.saleamt}</h3>
+        <h3>Price: $${property.sale.amount.saleamt}</h3>
         <hr>
         <div class="features-container">
         <h3>Features & Facts</h3>
@@ -137,81 +145,103 @@ const UIController = (function() {
             <div class="feature-item">
                 <i class="fas fa-bed"></i>
                 <div>
-                    <h4>Beds</h4>
-                    <h4>${property.building.rooms.beds}</h4>
+                    <h4>Beds: ${property.building.rooms.beds}</h4>
                 </div>
             </div>
             <div class="feature-item">
                 <i class="fas fa-bath"></i>
                 <div>
-                    <h4>Bath</h4>
-                    <h4>${property.building.rooms.bathstotal === 0 ? "Unknown" : property.building.rooms.bathstotal}</h4>
+                    <h4>Bath: ${property.building.rooms.bathstotal === 0 ? "Unknown" : property.building.rooms.bathstotal}</h4>
                 </div>
             </div>
             <div class="feature-item">
                 <i class="fas fa-ruler-combined"></i>
                 <div>
-                    <h4>Living Size</h4>
-                    <h4>${property.building.size.bldgsize === 0 ? "Unknown" : property.building.size.bldgsize}</h4>
+                    <h4>Living Size: ${property.building.size.bldgsize === 0 ? "Unknown" : property.building.size.bldgsize}</h4>
                 </div>
             </div>
             <div class="feature-item">
                 <i class="fas fa-fire"></i>
                 <div>
-                    <h4>Heating</h4>
-                    <h4>${property.utilities.heatingtype}</h4>
+                    <h4>Heating: ${property.utilities.heatingtype === undefined ? "None" : property.utilities.heatingtype}</h4>
                 </div>
             </div>
             <div class="feature-item">
                 <i class="fas fa-snowflake"></i>
                 <div>
-                    <h4>Cooling</h4>
-                    <h4>${property.utilities.coolingtype}</h4>
+                    <h4>Cooling: ${property.utilities.coolingtype === undefined ? "Type Unknown" : property.utilities.coolingtype}</h4>
                 </div>
             </div>
             <div class="feature-item">
                 <i class="fas fa-car"></i>
                 <div>
-                    <h4>Parking</h4>
-                    <h4>${property.building.parking.garagetype ? property.building.parking.garagetype : "No Garage"}</h4>
+                    <h4>Parking: ${property.building.parking.garagetype ? property.building.parking.garagetype : "No Garage"}</h4>
                 </div>
             </div>
             <div class="feature-item">
                 <i class="fas fa-home"></i>
                 <div>
-                    <h4>Type</h4>
-                    <h4>${property.summary.proptype === "SFR" ? "Single Family Residence" : property.summary.proptype}</h4>
+                    <h4>Type: ${property.summary.proptype === "SFR" ? "Single Family Residence" : property.summary.proptype}</h4>
                 </div>
             </div>
             <div class="feature-item">
                 <i class="fas fa-building"></i>
                 <div>
-                    <h4>Bldg Size</h4>
-                    <h4>${property.building.size.bldgsize === 0 ? "Unknown" : property.building.size.bldgsize}</h4>
+                    <h4>Bldg Size: ${property.building.size.bldgsize === 0 ? "Unknown" : property.building.size.bldgsize}</h4>
                 </div>
             </div>
             <div class="feature-item">
-                <i class="fas fa-calendar"></i>
+                <i class="fas fa-gavel"></i>
                 <div>
-                    <h4>Year built</h4>
-                    <h4>${property.summary.yearbuilt === 0 ? "Unknown" : property.summary.yearbuilt}</h4>
+                    <h4>Year built: ${property.summary.yearbuilt === 0 ? "Unknown" : property.summary.yearbuilt}</h4>
                 </div>
             </div>
 
         </div>
         </div>
+        <hr>
+        <h3>More Information</h3>
         <ul>
-            <li>Basement Size</li>
-            <li>${property.building.interior.bsmtsize === 0 ? "Unknown" : property.building.interior.bsmtsize}</li>
-            <li>Construction Wall Type</li>
-            <li>${property.building.construction.wallType}</li>
-            <li>Garage Size</li>
-            <li>${property.building.parking.prkgSize === 0 ? "No Garage" : property.building.parking.prkgSize}</li>
-            <li>Floors</li>
-            <li>${property.building.summary.levels === 0 ? "Unknown" : property.building.summary.levels}</li>
-            <li>Price per sqft</li>
-            <li>${property.sale.calculation.pricepersizeunit === 0 ? "Unknown" : "$" + property.sale.calculation.pricepersizeunit}</li>
-        </ul>`};
+            <li><span>Basement Size:</span> ${property.building.interior.bsmtsize === 0 ? "Unknown" : property.building.interior.bsmtsize}</li>
+            <li><span>Construction Wall Type:</span> ${property.building.construction.wallType}</li>
+            <li><span>Garage Size:</span> ${property.building.parking.prkgSize === 0 ? "Unknown" : property.building.parking.prkgSize}</li>
+            <li><span>Floors</span>: ${property.building.summary.levels === 0 ? "Unknown" : property.building.summary.levels}</li>
+            <li><span>Price per sqft:</span> ${property.sale.calculation.pricepersizeunit === 0 ? "Unknown" : "$" + property.sale.calculation.pricepersizeunit}</li>
+        </ul>`
+    };
+
+        const createButton = (page, type) => {
+            return `
+            <button class="btn-inline btn-${type}" data-goto=${type === 'prev' ? page - 1 : page + 1}>
+                <span>${type === 'prev' ? '<i class="fas fa-arrow-left"></i> ' : ""}Page ${type === 'prev' ? page - 1 : page + 1}${type === 'next' ? ' <i class="fas fa-arrow-right"></i>' : ""}</span>
+            </button>
+            `
+        }
+
+        const renderButtons = (page, numResults, resPerPage) => {
+            //calculate how many pages
+            const pages = Math.ceil(numResults / resPerPage);
+            if (pages > 1){
+                let button;
+                if (page === 1 && pages > 1) {
+                    //if first page and more than one page only show next button more
+                    button = createButton(page, 'next');
+                
+                } else if (page < pages) {
+                    //if inbetween show next and prev buttons
+                    button = `
+                        ${createButton(page, 'prev')}
+                        ${createButton(page, 'next')}
+                    `;
+                }else if(page === pages && pages > 1){
+                    //if last page and more than one page only show prev button
+                    button = createButton(page, 'prev');
+                }
+            
+                DomSelectors.listings.insertAdjacentHTML('beforeend', button);
+            }
+            
+        }
 
         
 
@@ -228,25 +258,31 @@ const UIController = (function() {
                 },
                 zoom: 14
             });
-        
+            markersArr = [];
             data.forEach(property => initMarkers(property));
         },
 
-        displayListings : data => {
-            const html = data.map((property, index) => {
-                return `
-                <div class="listing-item" data-property=${index} data-address1="${property.address.line1}" data-address2="${property.address.line2}" 
-                style="background: url('img/house${Math.floor(Math.random() * 10) + 1}.jpg') no-repeat center/cover">
+        displayListings : (data, page = 1, resPerPage = 10, e) => {
+            const start = (page - 1) * resPerPage;
+            const end = page * resPerPage;
+            const html = data.slice(start, end).map((property, i) => {
+                const image = Math.floor(Math.random() * 10) + 1;
+                 return `
+                <div class="listing-item" data-property=${i} data-address1="${property.address.line1}" data-address2="${property.address.line2}" data-image=${image}
+                style="background: url('img/house${image}.jpg') no-repeat center/cover" title="Click to view isting">
                 <a href="#"></a>
                 </div>`;
-                })
-                .join("");
-            DomSelectors.listings.innerHTML = html;
+                
+            }).join("");
+            DomSelectors.listings.insertAdjacentHTML('afterbegin', `<div class="listing-items-container">${html}</div>`);
+            
+
+            renderButtons(page, data.length, resPerPage);
         },
 
-        showPopup : (property) => {
+        showPopup : (e, property) => {
             DomSelectors.listingPopup.classList.add("listing-active");
-            DomSelectors.listingInfo.innerHTML = popupHTML(property);
+            DomSelectors.listingInfo.innerHTML = popupHTML(e, property);
         },
         
         showMarker : (e, markArr) => {
@@ -308,12 +344,14 @@ const controller = (function(dataCtrl, UICtrl) {
         DOM.closeListing.addEventListener("click", () =>
             DOM.listingPopup.classList.remove("listing-active")
         );
-        DOM.burger.addEventListener("click", function() {
+        DOM.burger.addEventListener("click", () => {
             DOM.nav.classList.toggle("is-open");
         });
         DOM.listingSearch.addEventListener("keyup", UICtrl.findZipCode);
         DOM.listingSearchForm.addEventListener("submit", listingAddressSearch);
-        DOM.filterSelects.forEach(select => select.addEventListener("change", filterData))
+        DOM.listingsContainer.addEventListener("click", pageResults);
+        DOM.filterButtons.forEach(button => button.addEventListener("click", showFilterUL));
+        DOM.filterButtons.forEach(button => button.addEventListener("click", filterButtonUpdate));
     }
 
     const onloadSetup = async () => {
@@ -328,6 +366,10 @@ const controller = (function(dataCtrl, UICtrl) {
 
         //push data to markersArr
         markArr = UICtrl.getMarkArr();
+
+        //loaders
+        DOM.mapLoader.classList.remove("active");
+        DOM.listingsLoader.classList.remove("active");
 
         // display listings
         UICtrl.displayListings(propData);
@@ -349,38 +391,57 @@ const controller = (function(dataCtrl, UICtrl) {
         propDetail = dataCtrl.getPropObj().propDetail;
 
         //show popup
-        UICtrl.showPopup(propDetail);
+        UICtrl.showPopup(e, propDetail);
     }
 
     const listingAddressSearch = async (e) => {
         e.preventDefault();
+        //Loaders
+        DOM.mapLoader.classList.add("active");
+        DOM.listingsLoader.classList.add("active");
+
         //clear input
         DOM.listingSearchForm.reset();
 
-        // //get zip code from UI var
-        const zip = UICtrl.getZipCode();
+        //get zip code from UI var
+        let zip;
+        try {
+            zip = UICtrl.getZipCode();
+        } catch(error){
+            DOM.mapLoader.classList.remove("active");
+            DOM.listingsLoader.classList.remove("active");
+            alert("Please enter a valid address or zip code");
+            return;
+        }
+
+        //clear list results
+        DOM.listings.innerHTML = '';
 
         //get api data
         await dataCtrl.fetchAddress(zip);
 
         //push api data to propData var
-        propData = dataCtrl.getPropObj().propData;
+        propData = dataCtrl.filterData(DOM.priceButton.dataset.value, DOM.bedButton.dataset.value, DOM.typeButton.dataset.value);
 
         // display map
         UICtrl.initMap(propData);
 
         //push data to markersArr
         markArr = UICtrl.getMarkArr();
+        
+
+        //loaders
+        DOM.mapLoader.classList.remove("active");
+        DOM.listingsLoader.classList.remove("active");
 
         // display listings
         UICtrl.displayListings(propData);
     }
 
     const filterData = () => {
+        try {
         //get filtered data
-        propData = dataCtrl.filterData(DOM.priceSelect.value, DOM.bedSelect.value, DOM.typeSelect.value);
-        console.log(DOM.priceSelect.value, DOM.bedSelect.value, DOM.typeSelect.value);
-        console.log(propData);
+        propData = dataCtrl.filterData(DOM.priceButton.dataset.value, DOM.bedButton.dataset.value, DOM.typeButton.dataset.value);
 
         //display map
         UICtrl.initMap(propData);
@@ -388,8 +449,49 @@ const controller = (function(dataCtrl, UICtrl) {
         //push data to markersArr
         markArr = UICtrl.getMarkArr();
 
+        //clear list results
+        DOM.listings.innerHTML = '';
+ 
         // display listings
         UICtrl.displayListings(propData);
+        } catch(error){
+            alert("There are no results for that search");
+        }
+    }
+
+    const pageResults = e => {
+        const btn = e.target.closest('.btn-inline');
+        if(btn) {
+            const goToPage = parseInt(btn.dataset.goto);
+        
+            DOM.listings.innerHTML = ''; 
+            
+
+            propData = dataCtrl.filterData(DOM.priceButton.dataset.value, DOM.bedButton.dataset.value, DOM.typeButton.dataset.value);
+
+            UICtrl.displayListings(propData, goToPage);
+
+            DOM.listingsContainer.scrollTop = 0;
+        }
+    }
+
+    const showFilterUL = e => {
+        if(!e.target.closest(".filter-btn")) return;
+        const btn = e.target.closest(".filter-btn");
+        const parent = btn.parentNode;
+        const ul = parent.querySelector("ul");
+        ul.classList.toggle("filter-active");
+    }
+
+    const filterButtonUpdate = e => {
+        if(!e.target.closest("li")) return;
+            const li = e.target.closest("li");
+            const parent = li.parentNode.parentNode;
+            const btn = parent.querySelector("button");
+            btn.innerHTML = li.innerHTML + ' <i class="fas fa-caret-down"></i>';
+            btn.dataset.value = li.dataset.value;
+            li.parentNode.classList.toggle("filter-active");
+            filterData();
     }
 
     return {

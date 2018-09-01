@@ -5,10 +5,17 @@ body {
     font-family: "Open Sans", sans-serif;
     box-sizing: border-box;
     overflow-y: hidden;
+    color: #333;
 }
 
 * {
     box-sizing: inherit;
+}
+
+input:focus,
+button:focus,
+select:focus {
+    outline: none;
 }
 
 a,
@@ -112,6 +119,7 @@ a:visited {
 }
 
 /******************Listings************************/
+
 .main-nav {
     display: flex;
     padding: 1rem 3rem;
@@ -175,20 +183,94 @@ a:visited {
 
 .secondary-nav {
     display: flex;
-    padding: 1rem 3rem;
+    padding: 0 3rem;
     background: rgba(0, 0, 0, 0.05);
     align-items: center;
+    height: 3.5rem;
+    position: relative;
 }
 
 .secondary-nav * {
     margin-right: 1rem;
 }
 
+.secondary-nav form {
+    flex-basis: 450px;
+    height: 100%;
+    display: flex;
+    align-items: center;
+}
+
 .secondary-nav input {
-    padding: 0.5rem 2rem;
     border: none;
     border-radius: 4px;
-    flex-basis: 300px;
+    width: 100%;
+    height: 90%;
+    padding-left: 1rem;
+    font-size: 1.1rem;
+    margin-right: 0;
+}
+
+.secondary-nav form button {
+    height: 90%;
+    background: #fff;
+    border: 0;
+    padding: 0 1rem;
+}
+.secondary-nav form button:hover {
+    cursor: pointer;
+}
+
+.secondary-nav form button i.fa-search {
+    font-size: 1.1rem;
+    color: #333;
+    margin-right: 0;
+}
+
+.filter {
+    align-self: flex-start;
+    overflow: hidden;
+}
+
+.filter-btn {
+    width: 100%;
+    height: 50px;
+    background: #fff;
+    border: none;
+    margin-top: 3px;
+    text-align: left;
+    font-size: 1rem;
+    padding: 1rem 0 1rem 1rem;
+}
+
+.filter-btn:hover {
+    cursor: pointer;
+}
+
+.filter ul {
+    position: relative;
+    z-index: 100;
+    background: #fff;
+    margin: 0;
+    padding: 0;
+    max-height: 0;
+    transition: all 0.4s ease-in-out;
+}
+
+.filter ul.filter-active {
+    max-height: 500px;
+}
+
+.filter ul li {
+    list-style: none;
+    padding: 1rem 0 1rem 1rem;
+    width: 100%;
+}
+
+.filter ul li:hover {
+    cursor: pointer;
+    background-color: rgb(35, 172, 227);
+    color: #fff;
 }
 
 @media (max-width: 800px) {
@@ -234,13 +316,13 @@ a:visited {
 #listing-popup-container .listing-popup {
     background: #fff;
     margin: auto;
-    width: 70%;
+    width: 50%;
     height: 100%;
     padding: 3rem;
     position: relative;
     display: flex;
     flex-direction: column;
-    transition: all 0.3s ease-in-out;
+    transition: all 0.2s ease-in-out;
     transform: translateY(200px);
     border-radius: 5px;
     overflow-y: scroll;
@@ -265,6 +347,80 @@ a:visited {
     transform: translateY(0);
 }
 
+.listing-popup > button {
+    background: none;
+    border: none;
+}
+
+.listing-popup > button:hover {
+    cursor: pointer;
+    color: #333;
+}
+
+.listing-popup > button i {
+    font-size: 1.1rem;
+}
+
+.listing-info {
+    width: 100%;
+}
+
+.listing-info figure {
+    margin: 0;
+}
+
+.listing-info figure img {
+    width: 100%;
+    max-height: 400px;
+}
+
+.listing-info h2 i,
+.listing-info h3 i {
+    display: inline;
+    margin-right: 1rem;
+}
+
+.features {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    text-align: center;
+    align-content: center;
+    margin-bottom: 2rem;
+}
+
+.features .feature-item {
+    border: 1px solid rgba(0, 0, 0, 0.1);
+    padding: 1rem;
+}
+
+.features .feature-item:hover {
+    background-color: rgba(0, 0, 0, 0.05);
+}
+
+.features .feature-item div h4 {
+    margin: 1rem 0 0 0;
+    font-size: 0.9rem;
+}
+
+.listing-info ul {
+    margin: 0;
+    padding: 0;
+}
+
+.listing-info ul li {
+    list-style: none;
+    padding: 1rem;
+    border: 1px solid rgba(0, 0, 0, 0.1);
+}
+
+.listing-info ul li:hover {
+    background-color: rgba(0, 0, 0, 0.05);
+}
+
+.listing-info ul li span {
+    font-weight: bold;
+}
+
 /*********************MAIN*********************/
 
 #main-content {
@@ -272,22 +428,81 @@ a:visited {
     height: calc(100vh - 139px);
 }
 
-#main-content #map {
+#main-content #map-container {
     flex: 1.3;
+    position: relative;
+}
+
+#map {
+    width: 100%;
+    height: 100%;
+}
+
+#map-container .map-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.1);
+    display: none;
+    z-index: 10000;
+}
+
+#map-container .map-overlay.active {
+    display: block;
+}
+
+.infoW {
+    margin-top: 0;
+    margin-bottom: 0.4rem;
+}
+
+.loader {
+    position: absolute;
+    z-index: 1;
+    width: 100px;
+    height: 100px;
+    border-radius: 50%;
+    border-top: 5px solid rgb(35, 172, 227);
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    animation: loader 0.8s linear infinite;
+}
+
+@keyframes loader {
+    0% {
+        transform: translate(-50%, -50%) rotate(0);
+    }
+
+    100% {
+        transform: translate(-50%, -50%) rotate(360deg);
+    }
 }
 
 #main-content #listings-container {
-    overflow: scroll;
+    overflow-y: scroll;
     flex: 1;
+    position: relative;
 }
 
 #listings-container h2 {
     text-align: center;
 }
 
-#listings-container .listings {
+.listings .listing-items-container {
     display: grid;
     grid-template-columns: repeat(2, 1fr);
+    position: relative;
+}
+
+#listings-container .loader {
+    display: none;
+}
+
+#listings-container .loader.active {
+    display: block;
 }
 
 .listing-item {
@@ -296,6 +511,35 @@ a:visited {
     position: relative;
     width: 300px;
     height: 180px;
+}
+
+.btn-inline {
+    margin: 0 1rem 1rem 1rem;
+    background-color: rgb(35, 172, 227);
+    border: none;
+    color: #fff;
+    font-weight: bold;
+    padding: 0.7rem;
+    border-radius: 4px;
+    text-transform: uppercase;
+}
+
+.btn-inline:hover {
+    cursor: pointer;
+    background-color: rgba(35, 172, 227, 0.8);
+}
+
+.btn-next {
+    float: right;
+}
+
+.btn-prev {
+    float: left;
+}
+
+.fa-arrow-left,
+.fa-arrow-right {
+    font-size: 1rem;
 }
 
 .listing-item a {
