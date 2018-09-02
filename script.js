@@ -60,7 +60,8 @@ const dataController = (function() {
 
 const UIController = (function() {
     const DomSelectors = {
-         burger : document.querySelector(".main-nav .open-up"),
+         heart : document.querySelector(".heart"),
+         heartList : document.querySelector(".heart-list"),
          nav : document.querySelector(".main-nav ul"),
          listingPopup : document.querySelector("#listing-popup-container"),
          listingPopupWindow : document.querySelector(".listing-popup"),
@@ -118,21 +119,24 @@ const UIController = (function() {
     
         marker.addListener("click", async function() {
             const property = this.property;
-            DomSelectors.listingPopup.classList.add("listing-active");
             const fetchResults = await fetch(`https://search.onboard-apis.com/propertyapi/v1.0.0/sale/detail?address1=${property.address.line1.replace("#", '')}&address2=${property.address.line2}`, {
                 method: "GET",
                 headers: {
                     Accept: "application/json",
                     apikey: "42c65bf54edfdc92b5825477c56a8b21"
                 }
-            }).then(blob => blob.json()).then(data => DomSelectors.listingInfo.innerHTML = popupHTML(null, data.property[0]));
+            }).then(blob => blob.json()).then(data => {
+                DomSelectors.listingPopup.classList.add("listing-active");
+                const listing = document.querySelector(`.listing-item[data-id="${property.identifier.obPropId}"]`);
+                DomSelectors.listingInfo.innerHTML = popupHTML(listing, data.property[0]);
+            });
         }); 
         markersArr.push([marker, infowindow]);
     }
 
     const popupHTML = (e, property) => {
         return `<figure>
-            <img src="img/house${e !== null ? e.target.parentNode.dataset.image : Math.floor((Math.random() * 10) + 1)}.jpg" alt="Listing">
+            <img src="img/house${e.target ? e.target.parentNode.dataset.image : e.dataset.image}.jpg" alt="Listing">
         </figure>
         
         <h2><i class="fas fa-map-marker-alt"></i>${property.address.line1}</h2>
@@ -268,8 +272,8 @@ const UIController = (function() {
             const html = data.slice(start, end).map((property, i) => {
                 const image = Math.floor(Math.random() * 10) + 1;
                  return `
-                <div class="listing-item" data-property=${i} data-address1="${property.address.line1}" data-address2="${property.address.line2}" data-image=${image}
-                style="background: url('img/house${image}.jpg') no-repeat center/cover" title="Click to view isting">
+                <div class="listing-item" data-property=${i} data-address1="${property.address.line1}" data-address2="${property.address.line2}" data-image=${image} data-id=${property.identifier.obPropId}
+                style="background: url('img/house${image}.jpg') no-repeat center/cover" title="Click to view listing">
                 <a href="#"></a>
                 </div>`;
                 
@@ -344,14 +348,23 @@ const controller = (function(dataCtrl, UICtrl) {
         DOM.closeListing.addEventListener("click", () =>
             DOM.listingPopup.classList.remove("listing-active")
         );
-        DOM.burger.addEventListener("click", () => {
-            DOM.nav.classList.toggle("is-open");
-        });
         DOM.listingSearch.addEventListener("keyup", UICtrl.findZipCode);
         DOM.listingSearchForm.addEventListener("submit", listingAddressSearch);
         DOM.listingsContainer.addEventListener("click", pageResults);
         DOM.filterButtons.forEach(button => button.addEventListener("click", showFilterUL));
         DOM.filterButtons.forEach(button => button.addEventListener("click", filterButtonUpdate));
+        DOM.heart.addEventListener("click", () => DOM.heartList.classList.toggle("active"));
+        window.addEventListener("click", e => {
+            if(!e.target.closest(".heart")) DOM.heartList.classList.remove("active");
+        });
+        window.addEventListener("click", e => {
+            if(!e.target.closest(".filter-btn")) {
+                const filterUl = document.querySelectorAll(".filter ul");
+                filterUl.forEach(button => {
+                    button.classList.remove("filter-active");
+                })
+            };
+        })
     }
 
     const onloadSetup = async () => {

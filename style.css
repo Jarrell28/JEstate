@@ -138,47 +138,98 @@ a:visited {
     z-index: 3;
 }
 
+.fa-home {
+    font-size: 1.5rem;
+}
+
 .main-nav ul {
-    display: flex;
+    display: block;
     margin: 0;
-    flex-basis: 300px;
-    justify-content: space-between;
     z-index: 2;
     transition: all 0.3s ease-in-out;
+    position: relative;
 }
 
 .main-nav ul li {
     list-style: none;
 }
 
-.main-nav .open-up {
+.heart-list {
+    position: absolute;
+    top: 40px;
+    right: 0;
+    background: #fff;
+    border-radius: 2px;
+    max-height: 0;
+    transition: all 0.3s ease-in-out;
+    overflow: hidden;
+}
+
+.heart-list.active {
+    max-height: 500px;
+}
+
+.heart-list ul {
+    margin: 0;
+    padding: 0;
+}
+
+.heart-list ul li a {
+    display: flex;
+    color: #333;
+    margin: 0;
+    padding: 0;
+    width: 300px;
+    text-align: left;
+    align-items: center;
+}
+
+.heart-list ul li a:hover {
+    background-color: rgba(35, 172, 227, 0.8);
+    color: #fff;
+}
+
+.heart-list ul li:not(:first-child) {
+    border-top: 1px solid rgba(0, 0, 0, 0.1);
+    padding-top: 0.5rem;
+    margin-top: 0.5rem;
+}
+
+/* .heart-list ul li:nth-child(even) a {
+    background-color: rgba(0, 0, 0, 0.05);
+} */
+
+.heart-list ul li a div {
+    margin-left: 0.5rem;
+}
+
+.heart-list ul li a p {
+    margin: 0 0 0.2rem 0;
+    font-size: 0.9rem;
+    text-transform: capitalize;
+}
+
+.heart-list ul li a img {
+    width: 100px;
+    height: 100px;
+    border-top-left-radius: 2px;
+    border-bottom-left-radius: 2px;
+}
+
+/* .main-nav .open-up {
     display: none;
     width: 50px;
     height: 50px;
     position: relative;
-}
-.main-nav span {
-    display: block;
-    width: 50px;
-    height: 2px;
-    background: #fff;
-    position: relative;
-    top: 25px;
+} */
+
+.fa-heart {
+    font-size: 2rem;
+    transition: all 0.2s ease-in-out;
 }
 
-.main-nav span:before,
-.main-nav span:after {
-    content: "";
-    position: absolute;
-    top: -15px;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: #fff;
-}
-
-.main-nav span:after {
-    top: 15px;
+.fa-heart:hover {
+    transform: scale(1.2);
 }
 
 .secondary-nav {
@@ -272,10 +323,10 @@ a:visited {
     background-color: rgb(35, 172, 227);
     color: #fff;
 }
-
+/* 
 @media (max-width: 800px) {
-    .main-nav ul {
-        /* display: none; */
+   .main-nav ul {
+        display: none; 
         flex-direction: column;
         position: absolute;
         top: 76px;
@@ -296,8 +347,9 @@ a:visited {
 
     .main-nav .open-up {
         display: block;
-    }
+    } 
 }
+*/
 
 /********************LISTING POPUP**************/
 #listing-popup-container {
@@ -511,6 +563,11 @@ a:visited {
     position: relative;
     width: 300px;
     height: 180px;
+    transition: all 0.2s ease-in-out;
+}
+
+.listing-item:hover {
+    transform: scale(1.05);
 }
 
 .btn-inline {
