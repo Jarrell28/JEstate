@@ -2,7 +2,6 @@ const dataController = (function() {
      let propertyData = {};
     
     return {
-
         fetchAddress : async function(address) {
             const fetchResults = await fetch(`https://search.onboard-apis.com/propertyapi/v1.0.0/sale/snapshot?address=${address}&address2=${address}&radius=5&page=1&pagesize=1000`, {
                 method: "GET",
@@ -17,8 +16,8 @@ const dataController = (function() {
                 }
             })
         );
-    
                 propertyData.propResults = results;
+                propertyData.propResults.forEach(prop => prop.image = Math.floor((Math.random() * 30) + 1));
         },
 
         fetchDetailedAddress : async function(address1, address2) {
@@ -30,14 +29,16 @@ const dataController = (function() {
                 }
             });
             const results = await fetchResults.json().then(data => data.property[0]);
-
             propertyData.propDetail = results;
+            const property = propertyData.propResults.find(el => el.identifier.obPropId === results.identifier.obPropId);
+            propertyData.propDetail.image = property.image;
         },
 
         getPropObj : function() {
             return {
                 propData : propertyData.propResults,
-                propDetail : propertyData.propDetail
+                propDetail : propertyData.propDetail,
+                propLikes : propertyData.likes
             }
         },
 
@@ -51,10 +52,41 @@ const dataController = (function() {
             })
         },
 
-        testing : function(){
-            console.log(propertyData.propResults);
+        setLikes : () => {
+            propertyData.likes = JSON.parse(localStorage.getItem("likes")) || [];
+        },
+
+        addLike : (property) => {
+            const like = {
+                id : property.identifier.obPropId,
+                address1 : property.address.line1,
+                address2 : property.address.line2,
+                price : property.sale.amount.saleamt,
+                bedrooms : property.building.rooms.beds,
+                type : property.summary.proptype,
+                image : property.image
+            };
+            propertyData.likes.push(like);
+            localStorage.setItem("likes", JSON.stringify(propertyData.likes));
+        },
+
+        deleteLike : (property) => {
+            index = propertyData.likes.findIndex(el => el.id === property.identifier.obPropId);
+            propertyData.likes.splice(index, 1);
+            localStorage.setItem("likes", JSON.stringify(propertyData.likes));
+        },
+
+        fetchLike : async (address1, address2) => {
+            const fetchResults = await fetch(`https://search.onboard-apis.com/propertyapi/v1.0.0/sale/detail?address1=${address1.replace("#", '')}&address2=${address2}`, {
+                method: "GET",
+                headers: {
+                    Accept: "application/json",
+                    apikey: "42c65bf54edfdc92b5825477c56a8b21"
+                }
+            });
+            const results = await fetchResults.json().then(data => data.property[0]);
+            propertyData.propDetail = results;
         }
-        
     }
 })();
 
@@ -62,7 +94,9 @@ const UIController = (function() {
     const DomSelectors = {
          heart : document.querySelector(".heart"),
          heartList : document.querySelector(".heart-list"),
+         heartListUl : document.querySelector(".heart-list ul"),
          nav : document.querySelector(".main-nav ul"),
+         mainContent : document.querySelector("#main-content"),
          listingPopup : document.querySelector("#listing-popup-container"),
          listingPopupWindow : document.querySelector(".listing-popup"),
          listingInfo : document.querySelector(".listing-info"),
@@ -80,7 +114,8 @@ const UIController = (function() {
          filterButtons : document.querySelectorAll(".filter"),
          listingsLoader : document.querySelector("#listloader"),
          mapLoader : document.querySelector("#map-container .map-overlay"),
-         
+         like : document.querySelector(".like"),
+         listingToggle : document.querySelector(".toggle")
     }
 
     let map;
@@ -114,7 +149,6 @@ const UIController = (function() {
 
         marker.addListener("mouseout", function() {
             infowindow.close(map, marker)
-            
         });
     
         marker.addListener("click", async function() {
@@ -126,20 +160,22 @@ const UIController = (function() {
                     apikey: "42c65bf54edfdc92b5825477c56a8b21"
                 }
             }).then(blob => blob.json()).then(data => {
+                const prop = dataController.getPropObj().propData.find(el => el.identifier.obPropId === data.property[0].identifier.obPropId);
+                data.property[0].image = prop.image;
+                DomSelectors.listingInfo.innerHTML = popupHTML(data.property[0]);
                 DomSelectors.listingPopup.classList.add("listing-active");
-                const listing = document.querySelector(`.listing-item[data-id="${property.identifier.obPropId}"]`);
-                DomSelectors.listingInfo.innerHTML = popupHTML(listing, data.property[0]);
+                DomSelectors.listingPopupWindow.scrollTop = 0;
             });
         }); 
         markersArr.push([marker, infowindow]);
     }
 
-    const popupHTML = (e, property) => {
+    const popupHTML = (property) => {
+        const like = dataController.getPropObj().propLikes.find(el => el.id === property.identifier.obPropId) || null;
         return `<figure>
-            <img src="img/house${e.target ? e.target.parentNode.dataset.image : e.dataset.image}.jpg" alt="Listing">
+            <img src="img/house${property.image}.jpg" alt="Listing">
         </figure>
-        
-        <h2><i class="fas fa-map-marker-alt"></i>${property.address.line1}</h2>
+        <h2><i class="fas fa-map-marker-alt"></i>${property.address.line1}<i class="${like !== null ? "fas" : "far"} fa-heart like"></i></h2>
         <h3>${property.address.line2}</h3>
         <h3>Price: $${property.sale.amount.saleamt}</h3>
         <hr>
@@ -241,7 +277,6 @@ const UIController = (function() {
                     //if last page and more than one page only show prev button
                     button = createButton(page, 'prev');
                 }
-            
                 DomSelectors.listings.insertAdjacentHTML('beforeend', button);
             }
             
@@ -270,23 +305,20 @@ const UIController = (function() {
             const start = (page - 1) * resPerPage;
             const end = page * resPerPage;
             const html = data.slice(start, end).map((property, i) => {
-                const image = Math.floor(Math.random() * 10) + 1;
                  return `
-                <div class="listing-item" data-property=${i} data-address1="${property.address.line1}" data-address2="${property.address.line2}" data-image=${image} data-id=${property.identifier.obPropId}
-                style="background: url('img/house${image}.jpg') no-repeat center/cover" title="Click to view listing">
+                <div class="listing-item" data-property=${i} data-address1="${property.address.line1}" data-address2="${property.address.line2}" data-image=${property.image} data-id=${property.identifier.obPropId}
+                style="background: url('img/house${property.image}.jpg') no-repeat center/cover" title="Click to view listing">
                 <a href="#"></a>
                 </div>`;
                 
             }).join("");
             DomSelectors.listings.insertAdjacentHTML('afterbegin', `<div class="listing-items-container">${html}</div>`);
-            
-
             renderButtons(page, data.length, resPerPage);
         },
 
-        showPopup : (e, property) => {
+        showPopup : (property) => {
             DomSelectors.listingPopup.classList.add("listing-active");
-            DomSelectors.listingInfo.innerHTML = popupHTML(e, property);
+            DomSelectors.listingInfo.innerHTML = popupHTML(property);
         },
         
         showMarker : (e, markArr) => {
@@ -315,12 +347,27 @@ const UIController = (function() {
                         return item.long_name;
                     }
                 })
-                DomSelectors.listingSearch.focus();
             });
         },
         
         getZipCode : () => {
             return zipCode[0].long_name;
+        },
+
+        displayLikes : (likeArray) => {
+            const html = likeArray.map(like => {
+                return `<li data-address1='${like.address1}' data-address2='${like.address2}'  data-image='${like.image}'><a href="">
+                <img src="img/house${like.image}.jpg" alt="Listing Item">
+                <div>
+                    <p>${like.address1}</p>
+                    <p>${like.address2}</p>
+                    <p>$${like.price}</p>
+                    <p>${like.bedrooms} Bedroom ${like.type.replace("SFR", "House").replace("CONDOMINIUM", "Condo")}</p>
+                </div>
+            </a>
+        </li>`
+            }).join("");
+            DomSelectors.heartListUl.innerHTML = html;
         }
 }
 
@@ -353,7 +400,7 @@ const controller = (function(dataCtrl, UICtrl) {
         DOM.listingsContainer.addEventListener("click", pageResults);
         DOM.filterButtons.forEach(button => button.addEventListener("click", showFilterUL));
         DOM.filterButtons.forEach(button => button.addEventListener("click", filterButtonUpdate));
-        DOM.heart.addEventListener("click", () => DOM.heartList.classList.toggle("active"));
+        DOM.heart.addEventListener("click", () => {DOM.heartList.classList.toggle("active")});
         window.addEventListener("click", e => {
             if(!e.target.closest(".heart")) DOM.heartList.classList.remove("active");
         });
@@ -364,6 +411,18 @@ const controller = (function(dataCtrl, UICtrl) {
                     button.classList.remove("filter-active");
                 })
             };
+        })
+        DOM.listingInfo.addEventListener("click", handleLike);
+        DOM.heartListUl.addEventListener("click", showLike);
+        DOM.listingToggle.addEventListener("click", () => {
+            DOM.mainContent.classList.toggle("active");
+            if(DOM.mainContent.classList.contains("active")){
+                DOM.listingToggle.classList.add("fa-sort-down");
+                DOM.listingToggle.classList.remove("fa-sort-up");
+            } else {
+                DOM.listingToggle.classList.add("fa-sort-up");
+                DOM.listingToggle.classList.remove("fa-sort-down");
+            }
         })
     }
 
@@ -384,8 +443,17 @@ const controller = (function(dataCtrl, UICtrl) {
         DOM.mapLoader.classList.remove("active");
         DOM.listingsLoader.classList.remove("active");
 
+        //Set up likes array
+        dataCtrl.setLikes();
+
+        //get likes array
+        propLikes = dataCtrl.getPropObj().propLikes;
+
         // display listings
         UICtrl.displayListings(propData);
+
+        //display likes
+        UICtrl.displayLikes(propLikes);
     }
 
     const propDetailSetup = async (e) => {
@@ -404,7 +472,9 @@ const controller = (function(dataCtrl, UICtrl) {
         propDetail = dataCtrl.getPropObj().propDetail;
 
         //show popup
-        UICtrl.showPopup(e, propDetail);
+        UICtrl.showPopup(propDetail);
+
+        DOM.listingPopupWindow.scrollTop = 0;
     }
 
     const listingAddressSearch = async (e) => {
@@ -479,7 +549,6 @@ const controller = (function(dataCtrl, UICtrl) {
         
             DOM.listings.innerHTML = ''; 
             
-
             propData = dataCtrl.filterData(DOM.priceButton.dataset.value, DOM.bedButton.dataset.value, DOM.typeButton.dataset.value);
 
             UICtrl.displayListings(propData, goToPage);
@@ -506,6 +575,64 @@ const controller = (function(dataCtrl, UICtrl) {
             li.parentNode.classList.toggle("filter-active");
             filterData();
     }
+
+    const handleLike = (e) => {
+        if(e.target.closest(".far.fa-heart")){
+            const like = e.target.closest(".like");
+            like.classList.remove("far");
+            like.classList.add("fas");
+            //get property
+            const property = dataCtrl.getPropObj().propDetail;
+    
+            //add Like to likes array
+            dataCtrl.addLike(property);
+    
+            //get likes array
+            propLikes = dataCtrl.getPropObj().propLikes;
+    
+            //display likes
+            UICtrl.displayLikes(propLikes);
+        } else if(e.target.closest(".fas.fa-heart")){
+            const like = e.target.closest(".like");
+            like.classList.remove("fas");
+            like.classList.add("far");
+            //get property
+            const property = dataCtrl.getPropObj().propDetail;
+
+            //delete Like from likes array
+            dataCtrl.deleteLike(property);
+
+            //get likes array
+            propLikes = dataCtrl.getPropObj().propLikes;
+
+            //display likes
+            UICtrl.displayLikes(propLikes);
+        }
+        
+    }
+
+    const showLike = async (e) => {
+        e.preventDefault();
+        const li = e.target.closest("li");
+        
+        //get api parameters from data-address
+        const address1 = li.dataset.address1;
+        const address2 = li.dataset.address2;
+
+        //fetch data
+        await dataCtrl.fetchLike(address1, address2);
+
+        //push data to propDetail var
+        propDetail = dataCtrl.getPropObj().propDetail;
+        propDetail.image = li.dataset.image;
+
+        //show popup
+        UICtrl.showPopup(propDetail);
+
+        DOM.listingPopupWindow.scrollTop = 0;
+    }
+
+  
 
     return {
        init : function() {

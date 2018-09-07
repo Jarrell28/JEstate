@@ -1,0 +1,29 @@
+{
+    "name": "realestateapp",
+    "version": "1.0.0",
+    "description": "Real Estate App",
+    "main": "script.js",
+    "scripts": {
+        "dev": "webpack"
+    },
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/Jarrell28/JEstate.git"
+    },
+    "author": "Jarrell Houston",
+    "license": "ISC",
+    "bugs": {
+        "url": "https://github.com/Jarrell28/JEstate/issues"
+    },
+    "homepage": "https://github.com/Jarrell28/JEstate#readme",
+    "devDependencies": {
+        "@babel/core": "^7.0.0",
+        "@babel/preset-env": "^7.0.0",
+        "babel-loader": "^8.0.2",
+        "webpack": "^4.17.2",
+        "webpack-cli": "^3.1.0"
+    },
+    "dependencies": {
+        "babel-polyfill": "^6.26.0"
+    }
+}

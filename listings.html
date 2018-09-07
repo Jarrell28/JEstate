@@ -114,10 +114,10 @@
                 <i class="fas fa-home"></i><br> J Estate
             </a>
             <ul>
-                <li class="heart"><a href="#"><i class="fas fa-heart"></i></a></li>
+                <li class="heart"><i class="fas fa-heart"></i></li>
                 <li class="heart-list">
                     <ul>
-                        <li><a href="">
+                        <!-- <li><a href="">
                                 <img src="img/house1.jpg" alt="Listing Item">
                                 <div>
                                     <p>3600 W 84th St</p>
@@ -127,26 +127,7 @@
                                 </div>
                             </a>
                         </li>
-                        <li><a href="">
-                                <img src="img/house1.jpg" alt="Listing Item">
-                                <div>
-                                    <p>3600 W 84th St</p>
-                                    <p>Chicago, IL 60652</p>
-                                    <p>$200,000</p>
-                                    <p>2 Bedroom Apartment</p>
-                                </div>
-                            </a>
-                        </li>
-                        <li><a href="">
-                                <img src="img/house1.jpg" alt="Listing Item">
-                                <div>
-                                    <p>3600 W 84th St</p>
-                                    <p>Chicago, IL 60652</p>
-                                    <p>$200,000</p>
-                                    <p>2 Bedroom Apartment</p>
-                                </div>
-                            </a>
-                        </li>
+                     -->
 
                     </ul>
                 </li>
@@ -157,39 +138,41 @@
                 <input type="text" placeholder="Enter street address or zip code" required>
                 <button><i class="fas fa-search"></i></button>
             </form>
-            <span>Filter:</span>
-            <div class="filter price-container">
-                <button class="filter-btn price-button" data-value="0">Any Price <i class="fas fa-caret-down"></i></button>
-                <ul name="price" id="price">
-                    <li data-value="0">Any Price</li>
-                    <li data-value="50000">$50,000+</li>
-                    <li data-value="75000">$75,000+</li>
-                    <li data-value="100000">$100,000+</li>
-                    <li data-value="150000">$150,000+</li>
-                    <li data-value="200000">$200,000+</li>
-                    <li data-value="200000">$250,000+</li>
-                </ul>
-            </div>
-            <div class="filter beds-container">
-                <button class="filter-btn beds-button" data-value="0">0+ Beds <i class="fas fa-caret-down"></i></button>
-                <ul name="Beds" id="beds">
-                    <li data-value="0">0+ Beds</li>
-                    <li data-value="1">1+ Beds</li>
-                    <li data-value="2">2+ Beds</li>
-                    <li data-value="3">3+ Beds</li>
-                    <li data-value="4">4+ Beds</li>
-                </ul>
-            </div>
-            <div class="filter type-container">
-                <button class="filter-btn type-button" data-value="all">Any Type <i class="fas fa-caret-down"></i></button>
-                <ul name="type" id="type">
-                    <li data-value="all">Any Type</li>
-                    <li data-value="SFR">Houses</li>
-                    <li data-value="APARTMENT">Apartments</li>
-                    <li data-value="CONDOMINIUM">Condos</li>
-                    <li data-value="TOWNHOUSE/ROWHOME">Townhomes</li>
-                    <li data-value="MANUFACTURED HOME">Manufactured</li>
-                </ul>
+            <div class="filter-container">
+                <span>Filter:</span>
+                <div class="filter price-container">
+                    <button class="filter-btn price-button" data-value="0">Any Price <i class="fas fa-caret-down"></i></button>
+                    <ul name="price" id="price">
+                        <li data-value="0">Any Price</li>
+                        <li data-value="50000">$50,000+</li>
+                        <li data-value="75000">$75,000+</li>
+                        <li data-value="100000">$100,000+</li>
+                        <li data-value="150000">$150,000+</li>
+                        <li data-value="200000">$200,000+</li>
+                        <li data-value="200000">$250,000+</li>
+                    </ul>
+                </div>
+                <div class="filter beds-container">
+                    <button class="filter-btn beds-button" data-value="0">0+ Beds <i class="fas fa-caret-down"></i></button>
+                    <ul name="Beds" id="beds">
+                        <li data-value="0">0+ Beds</li>
+                        <li data-value="1">1+ Beds</li>
+                        <li data-value="2">2+ Beds</li>
+                        <li data-value="3">3+ Beds</li>
+                        <li data-value="4">4+ Beds</li>
+                    </ul>
+                </div>
+                <div class="filter type-container">
+                    <button class="filter-btn type-button" data-value="all">Any Type <i class="fas fa-caret-down"></i></button>
+                    <ul name="type" id="type">
+                        <li data-value="all">Any Type</li>
+                        <li data-value="SFR">Houses</li>
+                        <li data-value="APARTMENT">Apartments</li>
+                        <li data-value="CONDOMINIUM">Condos</li>
+                        <li data-value="TOWNHOUSE/ROWHOME">Townhomes</li>
+                        <li data-value="MANUFACTURED HOME">Manufactured</li>
+                    </ul>
+                </div>
             </div>
         </div>
     </header>
@@ -202,7 +185,7 @@
         </div>
 
         <div id="listings-container">
-            <h2>Listing Results</h2>
+            <h2>Listing Results <i class="toggle fas fa-sort-up"></i></h2>
             <div class="loader active" id="listloader"></div>
             <div class="listings">
                 <div class="listing-items-container">
@@ -217,7 +200,7 @@
             </div>
         </div>
     </main>
-    <script src="script.js"></script>
+    <script src="dist/bundle.js"></script>
     <script type="text/javascript" src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDfTGTkObTRIDLZ4KVJTbdmPfXccrtYmuc&libraries=places"></script>
 </body>
 
