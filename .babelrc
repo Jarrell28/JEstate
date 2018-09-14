@@ -3,9 +3,10 @@
         [
             "@babel/preset-env",
             {
+                "useBuiltIns": "entry",
                 "targets": {
-                    "node": "8.11.2",
-                    "esmodules": true
+                    "chrome": "58",
+                    "ie": "11"
                 }
             }
         ]

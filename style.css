@@ -91,10 +91,17 @@ a:visited {
 
 @media (max-width: 900px) {
     .home-content {
-        width: 100%;
-        -webkit-box-align: center;
-        -ms-flex-align: center;
-        align-items: center;
+        width: 80%;
+    }
+
+    .home-container video {
+        height: 100%;
+    }
+}
+
+@media (max-width: 550px) {
+    .home-content {
+        width: 95%;
     }
 }
 
@@ -136,6 +143,32 @@ a:visited {
     border-bottom-right-radius: 2px;
     text-transform: uppercase;
     font-weight: 600;
+}
+
+@media (max-width: 430px) {
+    .home-content form {
+        display: block;
+        text-align: center;
+    }
+
+    .home-content i {
+        width: 10%;
+        float: left;
+        height: 3rem;
+        line-height: 3rem;
+        padding: unset;
+    }
+
+    .home-content input {
+        width: 90%;
+        height: 3rem;
+    }
+
+    .home-content button {
+        padding: 10px;
+        font-size: 1.1rem;
+        margin-top: 1rem;
+    }
 }
 
 .home-content button:hover {
@@ -330,7 +363,7 @@ a:visited {
 .filter {
     -ms-flex-item-align: start;
     align-self: flex-start;
-    overflow: hidden;
+    position: relative;
 }
 
 .filter:last-child {
@@ -357,14 +390,16 @@ a:visited {
 }
 
 .filter ul {
-    position: relative;
-    z-index: 100;
+    position: absolute;
+    z-index: 15000;
     background: #fff;
     margin: 0;
     padding: 0;
     max-height: 0;
     -webkit-transition: all 0.4s ease-in-out;
     transition: all 0.4s ease-in-out;
+    overflow: hidden;
+    width: 100%;
 }
 
 .filter ul.filter-active {
@@ -383,13 +418,17 @@ a:visited {
     color: #fff;
 }
 
+.type-container {
+    width: 9rem;
+}
+
 /********************LISTING POPUP**************/
 #listing-popup-container {
     position: absolute;
     width: 100%;
     height: 100vh;
     background: rgba(0, 0, 0, 0.4);
-    z-index: 1000;
+    z-index: 10;
     padding: 4rem 0;
     display: block;
     opacity: 0;
@@ -404,6 +443,7 @@ a:visited {
     width: 50%;
     height: 100%;
     padding: 3rem;
+    padding-bottom: 0;
     position: relative;
     display: -webkit-box;
     display: -ms-flexbox;
@@ -506,7 +546,7 @@ a:visited {
 
 .listing-info ul {
     margin: 0;
-    padding: 0;
+    padding: 0 0 3rem 0;
 }
 
 .listing-info ul li {
@@ -622,10 +662,10 @@ a:visited {
 
 #listings-container .toggle {
     display: none;
-    position: relative;
-    top: 10px;
-    right: -30%;
+    position: absolute;
+    right: 1rem;
     font-size: 2.5rem;
+    line-height: 3rem;
 }
 
 .listings .listing-items-container {
@@ -793,7 +833,7 @@ a:visited {
     }
 
     #main-content.active .toggle {
-        top: 0px;
+        top: -1rem;
     }
 }
 

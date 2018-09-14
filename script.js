@@ -1,34 +1,39 @@
+const axios = require('axios');
+
 const dataController = (function() {
      let propertyData = {};
     
     return {
         fetchAddress : async function(address) {
-            const fetchResults = await fetch(`https://search.onboard-apis.com/propertyapi/v1.0.0/sale/snapshot?address=${address}&address2=${address}&radius=5&page=1&pagesize=1000`, {
+            const fetchResults = await axios({
                 method: "GET",
+                url: `https://search.onboard-apis.com/propertyapi/v1.0.0/sale/snapshot?address=${address}&address2=${address}&radius=1&page=1&pagesize=1000`,
                 headers: {
                     Accept: "application/json",
-                    apikey: "42c65bf54edfdc92b5825477c56a8b21"
+                    apikey: "73a77f49be62a4ba3f6e4b8640c04985"
                 }
             })
-            const results = await fetchResults.json().then(data => data.property.filter(prop => {
-                if (prop.sale.amount.saleamt > 0 && prop.building.rooms.beds > 0) {
+    
+            const results = fetchResults.data.property.filter(prop => {
+                if (prop.building.rooms.beds > 0) {
                     return prop;
                 }
-            })
-        );
+            });
+            
                 propertyData.propResults = results;
                 propertyData.propResults.forEach(prop => prop.image = Math.floor((Math.random() * 30) + 1));
         },
 
         fetchDetailedAddress : async function(address1, address2) {
-            const fetchResults = await fetch(`https://search.onboard-apis.com/propertyapi/v1.0.0/sale/detail?address1=${address1.replace("#", '')}&address2=${address2}`, {
+            const fetchResults = await axios({
                 method: "GET",
+                url: `https://search.onboard-apis.com/propertyapi/v1.0.0/sale/detail?address1=${address1.replace("#", '')}&address2=${address2}`,
                 headers: {
                     Accept: "application/json",
-                    apikey: "42c65bf54edfdc92b5825477c56a8b21"
+                    apikey: "73a77f49be62a4ba3f6e4b8640c04985"
                 }
             });
-            const results = await fetchResults.json().then(data => data.property[0]);
+            const results = fetchResults.data.property[0];
             propertyData.propDetail = results;
             const property = propertyData.propResults.find(el => el.identifier.obPropId === results.identifier.obPropId);
             propertyData.propDetail.image = property.image;
@@ -77,14 +82,15 @@ const dataController = (function() {
         },
 
         fetchLike : async (address1, address2) => {
-            const fetchResults = await fetch(`https://search.onboard-apis.com/propertyapi/v1.0.0/sale/detail?address1=${address1.replace("#", '')}&address2=${address2}`, {
+            const fetchResults = await axios({
                 method: "GET",
+                url: `https://search.onboard-apis.com/propertyapi/v1.0.0/sale/detail?address1=${address1.replace("#", '')}&address2=${address2}`,
                 headers: {
                     Accept: "application/json",
-                    apikey: "42c65bf54edfdc92b5825477c56a8b21"
+                    apikey: "73a77f49be62a4ba3f6e4b8640c04985"
                 }
             });
-            const results = await fetchResults.json().then(data => data.property[0]);
+            const results = fetchResults.data.property[0];
             propertyData.propDetail = results;
         }
     }
@@ -153,16 +159,17 @@ const UIController = (function() {
     
         marker.addListener("click", async function() {
             const property = this.property;
-            const fetchResults = await fetch(`https://search.onboard-apis.com/propertyapi/v1.0.0/sale/detail?address1=${property.address.line1.replace("#", '')}&address2=${property.address.line2}`, {
+            const fetchResults = await axios({
                 method: "GET",
+                url: `https://search.onboard-apis.com/propertyapi/v1.0.0/sale/detail?address1=${property.address.line1.replace("#", '')}&address2=${property.address.line2}`,
                 headers: {
                     Accept: "application/json",
-                    apikey: "42c65bf54edfdc92b5825477c56a8b21"
+                    apikey: "73a77f49be62a4ba3f6e4b8640c04985"
                 }
-            }).then(blob => blob.json()).then(data => {
-                const prop = dataController.getPropObj().propData.find(el => el.identifier.obPropId === data.property[0].identifier.obPropId);
-                data.property[0].image = prop.image;
-                DomSelectors.listingInfo.innerHTML = popupHTML(data.property[0]);
+            }).then(blob => {
+                const prop = dataController.getPropObj().propData.find(el => el.identifier.obPropId === blob.data.property[0].identifier.obPropId);
+                blob.data.property[0].image = prop.image;
+                DomSelectors.listingInfo.innerHTML = popupHTML(blob.data.property[0]);
                 DomSelectors.listingPopup.classList.add("listing-active");
                 DomSelectors.listingPopupWindow.scrollTop = 0;
             });
