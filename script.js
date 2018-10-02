@@ -15,7 +15,7 @@ const dataController = (function() {
             })
     
             const results = fetchResults.data.property.filter(prop => {
-                if (prop.building.rooms.beds > 0) {
+                if (prop.building.rooms.beds > 0 && prop.sale.amount.saleamt > 0) {
                     return prop;
                 }
             });
@@ -387,7 +387,7 @@ const controller = (function(dataCtrl, UICtrl) {
     let markArr;
     const url = new URL(window.location.href);
     const address = url.searchParams.get("address");
-    if (!address) window.location.href = "home.html";
+    if (!address) window.location.href = "index.html";
     const DOM = UICtrl.getDomSelectors();
 
     const setupEventListener = async function() {

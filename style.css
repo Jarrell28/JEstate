@@ -57,6 +57,11 @@ a:visited {
     z-index: 2;
 }
 
+.home-overlay.loading {
+    background: #fff;
+    z-index: 5;
+}
+
 .home-container video {
     position: absolute;
     top: 50%;
@@ -878,6 +883,10 @@ a:visited {
         -webkit-box-flex: 92%;
         -ms-flex: 92%;
         flex: 92%;
+    }
+
+    .home-content button {
+        border-radius: 2px;
     }
 }
 

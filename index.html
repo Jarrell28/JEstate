@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>J Estate</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css?family=Open+Sans:300,400,600,700" rel="stylesheet">
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.2.0/css/all.css" integrity="sha384-hWVjflwFxL6sNzntih27bfxkr27PmbbK/iSvJ+a4+0owXq79v+lsFkW54bOGbiDQ"
+        crossorigin="anonymous">
+</head>
+
+<body>
+    <div class="home-container">
+        <div class="home-overlay loading"></div>
+        <video autoplay="autoplay" loop muted>
+            <source src="background-video1.mp4" type="video/mp4">
+        </video>
+
+        <div class="home-content">
+            <h2>Find Your New Home</h2>
+            <form method="GET">
+                <i class="fas fa-home"></i>
+                <input type="text" required placeholder="Enter Street Address or Zip Code">
+                <button>Search</button>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        const input = document.querySelector(".home-content input");
+        const form = document.querySelector(".home-content form");
+        let zipCode;
+        form.addEventListener("submit", handleSubmit);
+
+        function handleSubmit(e) {
+            e.preventDefault();
+            if (zipCode.length === 0) {
+                alert("Enter Street Address or Zip Code");
+                this.reset();
+            } else {
+                location.assign(`/listings.html?address=${zipCode[0].long_name}`);
+            }
+        }
+
+
+        function findAddress() {
+            const autocomplete = new google.maps.places.Autocomplete(input);
+            autocomplete.addListener("place_changed", function () {
+                let details = this.getPlace();
+                zipCode = details.address_components.filter(item => {
+                    if (item["types"][0] === "postal_code") {
+                        return item;
+                    }
+                })
+            });
+        }
+
+        window.onload = function () {
+            document.querySelector(".home-overlay").classList.remove("loading");
+        }
+
+    </script>
+    <script type="text/javascript" src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDfTGTkObTRIDLZ4KVJTbdmPfXccrtYmuc&libraries=places&callback=findAddress"></script>
+
+</body>
+
+</html>
