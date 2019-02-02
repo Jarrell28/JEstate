@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>J Estate Listings</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css?family=Open+Sans:300,400,600,700" rel="stylesheet">
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.2.0/css/all.css" integrity="sha384-hWVjflwFxL6sNzntih27bfxkr27PmbbK/iSvJ+a4+0owXq79v+lsFkW54bOGbiDQ"
+        crossorigin="anonymous">
+</head>
+
+<body>
+    <div id="listing-popup-container">
+        <div class="listing-popup">
+            <button class="close"><i class="fas fa-times"></i></button>
+            <div class="listing-info">
+                <figure>
+                    <img src="" alt="Listing">
+                </figure>
+                <h2><i class="fas fa-map-marker-alt"></i>3600 W 84th St</h2>
+                <h3>Chicago, IL 60652</h3>
+                <h3><i class="fas fa-dollar-sign"></i>Price: 200,000</h3>
+                <hr>
+                <div class="features-container">
+                    <h3>Features & Facts</h3>
+                    <div class="features">
+                        <div class="feature-item">
+                            <i class="fas fa-bed"></i>
+                            <div>
+                                <h4>Beds</h4>
+                                <h4>3</h4>
+                            </div>
+                        </div>
+                        <div class="feature-item">
+                            <i class="fas fa-bath"></i>
+                            <div>
+                                <h4>Bath</h4>
+                                <h4>2</h4>
+                            </div>
+                        </div>
+                        <div class="feature-item">
+                            <i class="fas fa-ruler-combined"></i>
+                            <div>
+                                <h4>Living Size</h4>
+                                <h4>1200 sqft</h4>
+                            </div>
+                        </div>
+                        <div class="feature-item">
+                            <i class="fas fa-fire"></i>
+                            <div>
+                                <h4>Heating</h4>
+                                <h4>Unknown</h4>
+                            </div>
+                        </div>
+                        <div class="feature-item">
+                            <i class="fas fa-snowflake"></i>
+                            <div>
+                                <h4>Cooling</h4>
+                                <h4>Unkown</h4>
+                            </div>
+                        </div>
+                        <div class="feature-item">
+                            <i class="fas fa-car"></i>
+                            <div>
+                                <h4>Parking</h4>
+                                <h4>Garage</h4>
+                            </div>
+                        </div>
+                        <div class="feature-item">
+                            <i class="fas fa-home"></i>
+                            <div>
+                                <h4>Type</h4>
+                                <h4>Apartment</h4>
+                            </div>
+                        </div>
+                        <div class="feature-item">
+                            <i class="fas fa-building"></i>
+                            <div>
+                                <h4>Bldg Size</h4>
+                                <h4>2145 sqft</h4>
+                            </div>
+                        </div>
+                        <div class="feature-item">
+                            <i class="fas fa-calendar"></i>
+                            <div>
+                                <h4>Year built</h4>
+                                <h4>2006</h4>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+                <ul>
+                    <li>Basement Size</li>
+                    <li>715</li>
+                    <li>Wall Type</li>
+                    <li>Aluminum</li>
+                    <li>Parking Size</li>
+                    <li>0</li>
+                    <li>Floors</li>
+                    <li>2</li>
+                    <li>Price per sqft</li>
+                    <li>94</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+    <header class="main-nav-container">
+        <div class="main-nav">
+            <a href="home.html">
+                <i class="fas fa-home"></i><br> J Estate
+            </a>
+            <ul>
+                <li class="heart"><i class="fas fa-heart"></i></li>
+                <li class="heart-list">
+                    <ul>
+                        <!-- <li><a href="">
+                                <img src="img/house1.jpg" alt="Listing Item">
+                                <div>
+                                    <p>3600 W 84th St</p>
+                                    <p>Chicago, IL 60652</p>
+                                    <p>$200,000</p>
+                                    <p>2 Bedroom Apartment</p>
+                                </div>
+                            </a>
+                        </li>
+                     -->
+
+                    </ul>
+                </li>
+            </ul>
+        </div>
+        <div class="secondary-nav">
+            <form action="">
+                <input type="text" placeholder="Enter street address or zip code" required>
+                <button><i class="fas fa-search"></i></button>
+            </form>
+            <div class="filter-container">
+                <span>Filter:</span>
+                <div class="filter price-container">
+                    <button class="filter-btn price-button" data-value="0">Any Price <i class="fas fa-caret-down"></i></button>
+                    <ul name="price" id="price">
+                        <li data-value="0">Any Price</li>
+                        <li data-value="50000">$50,000+</li>
+                        <li data-value="75000">$75,000+</li>
+                        <li data-value="100000">$100,000+</li>
+                        <li data-value="150000">$150,000+</li>
+                        <li data-value="200000">$200,000+</li>
+                        <li data-value="200000">$250,000+</li>
+                    </ul>
+                </div>
+                <div class="filter beds-container">
+                    <button class="filter-btn beds-button" data-value="0">0+ Beds <i class="fas fa-caret-down"></i></button>
+                    <ul name="Beds" id="beds">
+                        <li data-value="0">0+ Beds</li>
+                        <li data-value="1">1+ Beds</li>
+                        <li data-value="2">2+ Beds</li>
+                        <li data-value="3">3+ Beds</li>
+                        <li data-value="4">4+ Beds</li>
+                    </ul>
+                </div>
+                <div class="filter type-container">
+                    <button class="filter-btn type-button" data-value="all">Any Type <i class="fas fa-caret-down"></i></button>
+                    <ul name="type" id="type">
+                        <li data-value="all">Any Type</li>
+                        <li data-value="SFR">Houses</li>
+                        <li data-value="APARTMENT">Apartments</li>
+                        <li data-value="CONDOMINIUM">Condos</li>
+                        <li data-value="TOWNHOUSE/ROWHOME">Townhomes</li>
+                        <li data-value="MANUFACTURED HOME">Manufactured</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </header>
+    <main id="main-content">
+        <div id="map-container">
+            <div class="map-overlay active">
+                <div class="loader"></div>
+            </div>
+            <div id="map"></div>
+        </div>
+
+        <div id="listings-container">
+            <h2>Listing Results <i class="toggle fas fa-sort-up"></i></h2>
+            <div class="loader active" id="listloader"></div>
+            <div class="listings">
+                <div class="listing-items-container">
+                    <!-- <div class="listing-item">
+                    <img src="" alt="listing">
+                    <p>3600 W 84th St <span>Chicago, IL</span></p>
+                    <p>Price: <span>200,000</span> Beds: <span>3</span></p>
+                    <a href="#">View All Information</a>
+                </div>!-->
+                </div>
+
+            </div>
+        </div>
+    </main>
+    <script src="dist/bundle.js"></script>
+    <script type="text/javascript" src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDfTGTkObTRIDLZ4KVJTbdmPfXccrtYmuc&libraries=places"></script>
+</body>
+
+</html>
