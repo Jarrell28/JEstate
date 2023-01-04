@@ -17,7 +17,7 @@
     },
     "homepage": "https://github.com/Jarrell28/JEstate#readme",
     "devDependencies": {
-        "@babel/core": "^7.0.0",
+        "@babel/core": "^7.20.7",
         "@babel/polyfill": "^7.0.0",
         "@babel/preset-env": "^7.0.0",
         "@babel/preset-stage-0": "^7.0.0",
