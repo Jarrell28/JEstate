@@ -23,7 +23,7 @@
         "@babel/preset-stage-0": "^7.0.0",
         "babel-loader": "^8.0.2",
         "webpack": "^4.17.2",
-        "webpack-cli": "^3.1.0"
+        "webpack-cli": "^3.3.12"
     },
     "dependencies": {
         "axios": "^0.18.0",
